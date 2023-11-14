@@ -1,8 +1,11 @@
+import "dotenv/config";
+import jwt from "jsonwebtoken"
+import { compare } from "bcrypt";
 import { AppDataSource } from "../data-source";
 import { AppError } from "../error";
-import { IUserObject } from "../interfaces/user.interfaces";
+import { IUserLogin, IUserObject, IUserOutput } from "../interfaces/user.interfaces";
 
-export const createUserService = async (userObject:IUserObject):Promise<any> => { // :Promise:<IUserOutput>
+export const createUserService = async (userObject:IUserObject):Promise<Object> => {
   const usersRepo = AppDataSource.getRepository('users');
   const userFind = await usersRepo.findOneBy({email: userObject.email});
 
@@ -14,3 +17,29 @@ export const createUserService = async (userObject:IUserObject):Promise<any> => 
   
   return newUser;
 };
+
+export const loginUserService = async (userObject:IUserLogin):Promise<Object> => {
+  const usersRepo = AppDataSource.getRepository('users');
+  const findUser = await usersRepo.findOneBy({email:userObject.email});
+
+  if(!findUser) throw new AppError("User not exists", 403);
+
+  const passwordMatch = await compare(userObject.password, findUser.password);
+
+  if(!passwordMatch) throw new AppError("User not exists", 403);
+
+  if (!process.env.SECRET_KEY) {
+    throw new Error("Chave secreta não definida");
+  }
+
+  const token = jwt.sign(
+    {user: {id: findUser.id}},
+    process.env.SECRET_KEY,
+    {
+      expiresIn: '24h',
+      subject: findUser.id,
+    }
+  );
+
+  return { token: token}
+}

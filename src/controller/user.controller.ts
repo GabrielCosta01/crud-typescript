@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import { createUserService } from "../service/user.service";
-import { IUserObject } from "../interfaces/user.interfaces";
+import { createUserService, loginUserService } from "../service/user.service";
+import { IUserLogin, IUserObject } from "../interfaces/user.interfaces";
 
 export const createUserController = async (req:Request, res:Response) => {
   const userObject:IUserObject = req.body;
@@ -9,3 +9,9 @@ export const createUserController = async (req:Request, res:Response) => {
   
   return res.status(201).json(response);
 };
+
+export const loginUserController = async(req:Request, res:Response) => {
+  const objectUser:IUserLogin = req.body;
+  const token = await loginUserService(objectUser);
+  return res.status(200).json(token);
+}
