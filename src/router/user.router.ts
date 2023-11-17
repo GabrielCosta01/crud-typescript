@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { createUserController, getAllUsersController, loginUserController } from "../controller/user.controller";
+import { createUserController, getAllUsersController, loginUserController, updateUserController } from "../controller/user.controller";
 import { ensureAuthAdminMiddleware } from "../middlewares/ensureAdmin.middlewares";
-import { handleError } from "../error";
+import { ensureAuthMiddleware } from "../middlewares/ensureAuth.middleware";
 
-const userRouter = Router();
+export const userRouter = Router();
 
 userRouter.post("", createUserController);
-userRouter.post("/login", loginUserController)
-userRouter.get("", ensureAuthAdminMiddleware, getAllUsersController) // APENAS ADMINISTRADOR TEM ACESSO
-
-export default userRouter;
+userRouter.post("/login", loginUserController);
+userRouter.get("", ensureAuthMiddleware, ensureAuthAdminMiddleware, getAllUsersController);
+userRouter.patch("", ensureAuthMiddleware,updateUserController);
