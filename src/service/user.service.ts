@@ -7,7 +7,7 @@ import { IUserLogin, IUserObject, IUserOutput } from "../interfaces/user.interfa
 
 export const createUserService = async (userObject:IUserObject):Promise<Object> => {
   const usersRepo = AppDataSource.getRepository('users');
-  const userFind = await usersRepo.findOneBy({email: userObject.email});
+  const userFind = await usersRepo.exist({where:{ email:userObject.email}});
 
   if(userFind)throw new AppError("User is alredy exist",400);
   
@@ -31,9 +31,9 @@ export const loginUserService = async (userObject:IUserLogin):Promise<Object> =>
   if (!process.env.SECRET_KEY) {
     throw new Error("Chave secreta não definida");
   }
-
+  
   const token = jwt.sign(
-    {user: {id: findUser.id}},
+    {user: {isAdmin:findUser.isAdmin || false}},
     process.env.SECRET_KEY,
     {
       expiresIn: '24h',
@@ -42,4 +42,11 @@ export const loginUserService = async (userObject:IUserLogin):Promise<Object> =>
   );
 
   return { token: token}
+}
+
+export const getAllUsersService = async () => {
+  const userRepo = AppDataSource.getRepository("users");
+  const listUsers = await userRepo.find();
+
+  return listUsers
 }
