@@ -21,7 +21,6 @@ export const ensureAuthAdminMiddleware = (req:Request, res:Response, next:NextFu
 
   jwt.verify(token, process.env.SECRET_KEY, (err, decoded:DecodedToken) => {
     if(err)throw new AppError(err.message,401);
-    console.log(decoded);
     
     const isAdmin = decoded.user.isAdmin;
 

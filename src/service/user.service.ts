@@ -1,6 +1,6 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken"
-import { compare } from "bcrypt";
+import { compare, hashSync } from "bcrypt";
 import { AppDataSource } from "../data-source";
 import { AppError } from "../error";
 import { IUserLogin, IUserObject, IUserOutput } from "../interfaces/user.interfaces";
@@ -28,10 +28,8 @@ export const loginUserService = async (userObject:IUserLogin):Promise<Object> =>
 
   if(!passwordMatch) throw new AppError("User not exists", 403);
 
-  if (!process.env.SECRET_KEY) {
-    throw new Error("Chave secreta não definida");
-  }
-  
+  if (!process.env.SECRET_KEY)throw new Error("Chave secreta não definida");
+
   const token = jwt.sign(
     {user: {isAdmin:findUser.isAdmin || false}},
     process.env.SECRET_KEY,
@@ -40,13 +38,36 @@ export const loginUserService = async (userObject:IUserLogin):Promise<Object> =>
       subject: findUser.id,
     }
   );
-
   return { token: token}
 }
 
 export const getAllUsersService = async () => {
   const userRepo = AppDataSource.getRepository("users");
   const listUsers = await userRepo.find();
-
   return listUsers
+}
+
+export const updateUserService = async (updateBody) => {
+  
+  const usersRepo = AppDataSource.getRepository('users');
+  const foundedUser = await usersRepo.findOneBy({id:updateBody.id});
+  
+  delete updateBody.id;
+
+  if(updateBody.email !== undefined && updateBody.email !== foundedUser.email) {
+    foundedUser.email = updateBody.email;
+  }
+
+  if(updateBody.password){
+    foundedUser.password = hashSync(updateBody.password, 10);
+    delete updateBody.password;
+  }
+
+  const updatedUser = usersRepo.create({
+    ...foundedUser,
+    ...updateBody
+  });
+
+  const updateUser = await usersRepo.save(updatedUser);
+  return updateUser;
 }

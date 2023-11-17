@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../error";
 import * as jwt from "jsonwebtoken";
 
-export const ensureAuthMiddleware = (req:Request, res:Response, next:NextFunction) => {
+export const ensureAuthMiddleware = (req:Request | any, res:Response, next:NextFunction) => {
   const authToken:string = req.headers.authorization;
   if(!authToken)throw new AppError("Missing header authorization",401);
 
@@ -11,8 +11,8 @@ export const ensureAuthMiddleware = (req:Request, res:Response, next:NextFunctio
   jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
     if(error)throw new AppError(error.message, 401);
 
-    req.body = {
-      id: String(decoded.sub)
+    req.user = {
+      id: String(decoded.sub),
     };
   });
   return next();
