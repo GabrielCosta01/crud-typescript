@@ -12,7 +12,7 @@ interface DecodedToken {
   sub: string;
 }
 
-export const ensureAuthAdmin = (req:Request, res:Response, next:NextFunction) => {
+export const ensureAuthAdminMiddleware = (req:Request, res:Response, next:NextFunction) => {
   const authToken:string = req.headers.authorization;
   
   if(!authToken)throw new AppError("Missing header authorization", 401);
