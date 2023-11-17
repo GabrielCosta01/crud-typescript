@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, CreateDateColumn } from "typeorm";
 import { IsEmail } from "class-validator";
 import { hashSync } from "bcrypt";
 
@@ -16,6 +16,12 @@ class User{
 
   @Column({length:72})
   password: string;
+
+  @Column({default:false})
+  isAdmin: boolean;
+
+  @CreateDateColumn({type:"timestamp", default: () => "CURRENT_TIMESTAMP"})
+  createdAt: Date;
 
   @BeforeInsert()
   hashPassword(){

@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { createUserController } from "../controller/user.controller";
+import { createUserController, getAllUsersController, loginUserController } from "../controller/user.controller";
+import { ensureAuthAdminMiddleware } from "../middlewares/ensureAdmin.middlewares";
+import { handleError } from "../error";
 
 const userRouter = Router();
 
-userRouter.post("/user", createUserController);
+userRouter.post("", createUserController);
+userRouter.post("/login", loginUserController)
+userRouter.get("", ensureAuthAdminMiddleware, getAllUsersController) // APENAS ADMINISTRADOR TEM ACESSO
 
 export default userRouter;
