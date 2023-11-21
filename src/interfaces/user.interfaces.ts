@@ -1,3 +1,11 @@
+import { Request } from "express";
+
+export interface AuthRequest extends Request{
+  user: {
+    id:string;
+  }
+}
+
 export interface IUserRequest {
   name: string;
   email: string;
@@ -22,3 +30,4 @@ export type IUserBodyUpdate = {
   email?:string;
   password?:string;
 }
+

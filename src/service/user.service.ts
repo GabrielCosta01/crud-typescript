@@ -10,7 +10,7 @@ export const createUserService = async (userObject:IUserRequest):Promise<Object>
   const usersRepo = AppDataSource.getRepository('users');
   const userFind = await usersRepo.exist({where:{ email:userObject.email}});
 
-  if(userFind)throw new AppError("User is alredy exist",400);
+  if(userFind)throw new AppError("User is alredy exist",409);
   
   const newUser = usersRepo.create(userObject);
 
@@ -39,14 +39,16 @@ export const loginUserService = async (userObject:IUserLogin):Promise<Object> =>
       subject: findUser.id,
     }
   );
-  return { token: token}
-}
+  return { token: token};
+};
 
 export const getAllUsersService = async () => {
   const userRepo = AppDataSource.getRepository("users");
   const listUsers = await userRepo.find();
   return listUsers
-}
+};
+
+export const getUserService = async (userId:string) => {};
 
 export const updateUserService = async (updateBody:IUserBodyUpdate, idUser:string):Promise<IUserBodyUpdate> => {
   const usersRepo = AppDataSource.getRepository('users');
@@ -70,7 +72,7 @@ export const updateUserService = async (updateBody:IUserBodyUpdate, idUser:strin
   });
 
   await usersRepo.save(updatedUser);
-  
+
   const userTrated = userDataOutputUpdateSchema.validate(updatedUser,{stripUnknown:true});
   return userTrated;
-}
+};
