@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken"
 import { compare, hashSync } from "bcrypt";
 import { AppDataSource } from "../data-source";
 import { AppError } from "../error";
-import { IUserLogin, IUserObject, IUserOutput } from "../interfaces/user.interfaces";
+import { IUserLogin, IUserRequest, IUserOutput, IUserBodyUpdate } from "../interfaces/user.interfaces";
+import { userDataOutputUpdateSchema } from "../schemas/user.schema";
 
-export const createUserService = async (userObject:IUserObject):Promise<Object> => {
+export const createUserService = async (userObject:IUserRequest):Promise<Object> => {
   const usersRepo = AppDataSource.getRepository('users');
   const userFind = await usersRepo.exist({where:{ email:userObject.email}});
 
@@ -47,12 +48,12 @@ export const getAllUsersService = async () => {
   return listUsers
 }
 
-export const updateUserService = async (updateBody) => {
-  
+export const updateUserService = async (updateBody:IUserBodyUpdate, idUser:string):Promise<IUserBodyUpdate> => {
   const usersRepo = AppDataSource.getRepository('users');
-  const foundedUser = await usersRepo.findOneBy({id:updateBody.id});
   
-  delete updateBody.id;
+  const foundedUser = await usersRepo.findOneBy({id:idUser});
+  
+  if(foundedUser === null || foundedUser === undefined)throw new AppError("not exist this user",400); 
 
   if(updateBody.email !== undefined && updateBody.email !== foundedUser.email) {
     foundedUser.email = updateBody.email;
@@ -68,6 +69,8 @@ export const updateUserService = async (updateBody) => {
     ...updateBody
   });
 
-  const updateUser = await usersRepo.save(updatedUser);
-  return updateUser;
+  await usersRepo.save(updatedUser);
+  
+  const userTrated = userDataOutputUpdateSchema.validate(updatedUser,{stripUnknown:true});
+  return userTrated;
 }

@@ -13,6 +13,8 @@ interface DecodedToken {
 }
 
 export const ensureAuthAdminMiddleware = (req:Request, res:Response, next:NextFunction) => {
+  if(req.headers.authorization === undefined || process.env.SECRET_KEY === undefined)throw new AppError("Missing header authorization",401);
+  
   const authToken:string = req.headers.authorization;
   
   if(!authToken)throw new AppError("Missing header authorization", 401);
