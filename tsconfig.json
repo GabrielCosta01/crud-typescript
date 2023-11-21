@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "strictNullChecks": true,
+    "strictFunctionTypes": false, 
     "target": "es6",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

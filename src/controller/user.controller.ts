@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
 import { createUserService, getAllUsersService, loginUserService, updateUserService } from "../service/user.service";
-import { IUserLogin, IUserObject } from "../interfaces/user.interfaces";
+import { IUserLogin, IUserRequest } from "../interfaces/user.interfaces";
 
 export const createUserController = async (req:Request, res:Response) => {
-  const userObject:IUserObject = req.body;
+  const userObject:IUserRequest = req.body;
   const response = await createUserService(userObject);
   return res.status(201).json(response);
 };
@@ -21,8 +21,9 @@ export const getAllUsersController = async (req:Request, res:Response) => {
 
 export const updateUserController = async (req:Request | any, res:Response) => {
   const updateBody = req.body;
-  console.log(updateBody, "body");
+  console.log(updateBody, "BODY UPDATE");
   
-  const userUpdated = await updateUserService(updateBody);
+  const idUser = req.user.id;
+  const userUpdated = await updateUserService(updateBody, idUser);
   return res.status(200).json(userUpdated);
 }
