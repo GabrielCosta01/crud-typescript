@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../error";
 import * as jwt from "jsonwebtoken";
+import { AuthRequest } from "../interfaces/user.interfaces";
 
-export const ensureAuthMiddleware = (req:Request | any, res:Response, next:NextFunction) => {
+export const ensureAuthMiddleware = (req:AuthRequest, res:Response, next:NextFunction) => {
   if(req.headers.authorization === undefined || process.env.SECRET_KEY === undefined)throw new AppError("Missing header authorization",401);
   const authToken:string = req.headers.authorization;
   if(!authToken)throw new AppError("Missing header authorization",401);
